@@ -60,30 +60,61 @@ def make_text(chains, n_gram_length):
 
     text = ""
 
-    #Initializing words_list with random tuple
-    words_list = list(choice(chains.keys())) 
+    #Initializing words_list with random tuple, making sure key starts with a capital
+    while True:
+        words_list = list(choice(chains.keys()))
+        first_word = words_list[0]
+        if first_word[0].isupper():
+            break
 
-    #Appends new word to words_list based using last 2 words of words_list as key
-    while words_list[-1] != None:
+    # While loop creates key from last n items in word_list,
+    # picks a random word from possible values,
+    # appends word to word_list, and
+    # repeats until either the None item is added or
+    # word list is greater than length specified.
+    while (words_list[-1] != None and len(words_list) < 1000):
+        # Initialize empty list for key creation
         list_to_look_up = []
+        # Iterating through our last n items of word list from left to right
+        # Adding last n items to our key list
         for i in range(n_gram_length, 0, -1):
             list_to_look_up.append(words_list[-i])
+        # Turning our key list into a tuple
         tuple_to_look_up = tuple(list_to_look_up)
+        # Getting the value -a list- for our key
         a_list_of_words = chains[tuple_to_look_up]
+        # Getting the random new word to add from the value list
         new_word = choice(a_list_of_words)
+        # Appending the random new word to our words list
         words_list.append(new_word)
 
-    #Joins words_list as string called text
-    text = " ".join(words_list[:-1])
+    # Removing the final None item from our list.
+    if words_list[-1] == None:
+        words_list = words_list[:-1]
+
+    # While loop deletes the last word from words_list until it 
+    # finds a final word that ends in a punctuation mark.
+    while True:
+        test_word = words_list[-1]
+        if test_word[-1].isalnum():
+            del words_list[-1]
+        else:
+            break
+
+    # Joins words_list as string called text
+    text = " ".join(words_list)
 
     return text
 
 
 input_path = sys.argv[1]
-n_gram_length = int(sys.argv[2])
+input_path2 = sys.argv[2]
+n_gram_length = int(sys.argv[3])
 
 # Open the file and turn it into one long string
 input_text = open_and_read_file(input_path)
+input_text2 = open_and_read_file(input_path2)
+input_text = input_text + " " + input_text2
 
 # Get a Markov chain
 chains = make_chains(input_text, n_gram_length)
